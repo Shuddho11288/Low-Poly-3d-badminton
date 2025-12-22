@@ -1,0 +1,5 @@
+{
+  "name": "Pro Smash 3D Badminton",
+  "description": "A fully 3D, physics-based badminton game featuring skeletal character animation, smart AI opponents, and realistic shuttlecock physics.",
+  "requestFramePermissions": []
+}
