@@ -47,21 +47,28 @@
 </script>
 <!-- Global Error Handler to debug startup issues -->
 <script>
-  window.addEventListener('error', function(event) {
+  function showError(title, message, details) {
     const root = document.getElementById('root');
-    // Force error display
     if (root) {
       root.innerHTML = '<div style="color: #ef4444; padding: 20px; font-family: monospace; background: #111; position: absolute; inset: 0; z-index: 9999; overflow: auto;">' + 
-        '<h3 style="font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 10px;">Startup Error</h3>' + 
+        '<h3 style="font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 10px;">' + title + '</h3>' + 
         '<div style="background: #330000; padding: 15px; border-radius: 8px; border: 1px solid #600;">' +
-        '<p style="font-weight: bold; margin-bottom: 10px;">' + event.message + '</p>' +
-        '<p style="color: #bbb; font-size: 0.9rem;">File: ' + (event.filename || 'unknown') + '</p>' +
-        '<p style="color: #bbb; font-size: 0.9rem;">Line: ' + (event.lineno || '?') + '</p>' +
+        '<p style="font-weight: bold; margin-bottom: 10px;">' + message + '</p>' +
+        (details ? '<p style="color: #bbb; font-size: 0.9rem;">' + details + '</p>' : '') +
         '</div>' +
-        '<p style="margin-top: 20px; color: #888;">If you are seeing this on Vercel, check the console for more details.</p>' +
+        '<p style="margin-top: 20px; color: #888;">Check the browser console for full logs.</p>' +
       '</div>';
-      console.error("Critical Startup Error:", event);
     }
+  }
+
+  window.addEventListener('error', function(event) {
+    console.error("Critical Startup Error:", event);
+    showError('Startup Error', event.message, 'File: ' + (event.filename || 'unknown') + ':' + (event.lineno || '?'));
+  });
+
+  window.addEventListener('unhandledrejection', function(event) {
+    console.error("Unhandled Promise Rejection:", event.reason);
+    showError('Module Load Error', 'Failed to load a required module or resource.', event.reason ? event.reason.toString() : 'Unknown reason');
   });
 </script>
 </head>
