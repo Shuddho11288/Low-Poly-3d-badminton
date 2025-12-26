@@ -56,6 +56,9 @@ export class GameEngine {
     this.onScoreUpdate = onScoreUpdate;
     this.onStateChange = onStateChange;
 
+    // 1. Clear any existing content to prevent multiple canvases
+    this.container.innerHTML = '';
+
     // Safety check for dimensions to prevent 0-size canvas or Infinity aspect ratio
     let width = container.clientWidth;
     let height = container.clientHeight;
