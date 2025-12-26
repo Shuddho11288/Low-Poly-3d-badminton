@@ -21,9 +21,10 @@ export const UI: React.FC<UIProps> = ({ state, score, onStart, onResume, onResta
       onSmashToggle(newVal);
   };
 
+  // MENU STATE
   if (state === GameState.MENU) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-white z-10">
+      <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-white z-50">
         <div className="bg-gray-900 p-8 rounded-xl border border-blue-500 shadow-2xl max-w-md w-full">
           <h1 className="text-4xl font-bold text-center mb-8 text-blue-400 italic uppercase tracking-wider">Pro Smash 3D</h1>
           
@@ -70,10 +71,11 @@ export const UI: React.FC<UIProps> = ({ state, score, onStart, onResume, onResta
     );
   }
 
+  // GAME OVER STATE
   if (state === GameState.MATCH_END) {
      const playerWon = score.player > score.opponent;
      return (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/90 text-white z-20">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/90 text-white z-50">
             <div className="text-center">
                 <h1 className={`text-6xl font-black mb-4 ${playerWon ? 'text-green-500' : 'text-red-500'}`}>
                     {playerWon ? 'VICTORY!' : 'DEFEAT'}
@@ -90,9 +92,10 @@ export const UI: React.FC<UIProps> = ({ state, score, onStart, onResume, onResta
      );
   }
 
+  // HUD STATE
   return (
-    <>
-      {/* HUD */}
+    <div className="absolute inset-0 pointer-events-none z-40">
+      {/* Top Bar HUD */}
       <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-start pointer-events-none">
         <div className={`flex flex-col bg-black/50 p-3 rounded-lg backdrop-blur-sm border ${score.server === 'player' ? 'border-yellow-400' : 'border-white/10'}`}>
             <span className="text-xs text-blue-300 font-bold uppercase tracking-widest flex items-center gap-2">
@@ -136,7 +139,7 @@ export const UI: React.FC<UIProps> = ({ state, score, onStart, onResume, onResta
         </div>
       </div>
 
-      {/* Controls HUD */}
+      {/* Controls Buttons */}
       <div className="absolute bottom-6 right-6 pointer-events-auto flex flex-col gap-3">
          <button 
            onClick={toggleSmash}
@@ -161,6 +164,6 @@ export const UI: React.FC<UIProps> = ({ state, score, onStart, onResume, onResta
       <div className="absolute bottom-10 left-10 w-32 h-32 border-2 border-white/10 rounded-full pointer-events-none opacity-20">
         <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
       </div>
-    </>
+    </div>
   );
 };

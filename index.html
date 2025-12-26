@@ -23,24 +23,35 @@
         top: 0;
         left: 0;
       }
+      /* Ensure canvas is behind UI */
       canvas { 
         display: block; 
-        outline: none; 
+        outline: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 0;
       }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "three": "https://esm.sh/three@0.173.0",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client",
+    "react": "https://esm.sh/react@18.2.0",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "three": "https://esm.sh/three@0.160.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
 </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback content if React fails to load -->
+      <div style="color: white; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: sans-serif;">
+        Loading Game...
+      </div>
+    </div>
   </body>
 </html>

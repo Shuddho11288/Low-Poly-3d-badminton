@@ -13,19 +13,19 @@ export default function App() {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Small delay to ensure DOM layout is settled (helps on some mobile browsers)
-    const timer = setTimeout(() => {
-        if (!containerRef.current) return;
+    // Initialize Game Engine safely
+    try {
         const engine = new GameEngine(
           containerRef.current,
           (newScore) => setScore(newScore),
           (newState) => setGameState(newState)
         );
         engineRef.current = engine;
-    }, 50);
+    } catch (e) {
+        console.error("Failed to start GameEngine", e);
+    }
 
     return () => {
-      clearTimeout(timer);
       engineRef.current?.dispose();
     };
   }, []);
@@ -65,9 +65,14 @@ export default function App() {
   };
 
   return (
-    <div className="relative w-full h-full bg-gray-900 overflow-hidden font-sans" style={{ width: '100%', height: '100%' }}>
-      <div ref={containerRef} className="w-full h-full touch-none" style={{ width: '100%', height: '100%' }} />
+    <div className="relative w-screen h-screen bg-gray-900 overflow-hidden font-sans">
+      {/* 3D Container - Z Index 0 */}
+      <div 
+        ref={containerRef} 
+        className="absolute inset-0 w-full h-full z-0 touch-none"
+      />
       
+      {/* UI Overlay - Z Index 10+ */}
       <UI 
         state={gameState} 
         score={score} 
@@ -77,10 +82,10 @@ export default function App() {
         onSmashToggle={handleSmashToggle}
       />
 
-      {/* Invisible Touch Zone for Virtual Joystick (Bottom Left) */}
+      {/* Invisible Touch Zone for Virtual Joystick (Bottom Left) - Z Index 20 */}
       {gameState === GameState.PLAYING && (
           <div 
-            className="absolute bottom-8 left-8 w-40 h-40 z-30 touch-none"
+            className="absolute bottom-8 left-8 w-40 h-40 z-20 touch-none"
             onTouchStart={handleJoystick}
             onTouchMove={handleJoystick}
             onTouchEnd={resetJoystick}
