@@ -16,6 +16,7 @@ export class GameEngine {
   private container: HTMLElement;
   private animationId: number = 0;
   private clock: THREE.Clock;
+  private resizeObserver: ResizeObserver;
 
   // Game Objects
   private court: Court;
@@ -55,16 +56,30 @@ export class GameEngine {
     this.onScoreUpdate = onScoreUpdate;
     this.onStateChange = onStateChange;
 
+    // Safety check for dimensions to prevent 0-size canvas or Infinity aspect ratio
+    let width = container.clientWidth;
+    let height = container.clientHeight;
+    
+    // Fallback to window size if container is not yet measured (common in prod)
+    if (width === 0) width = window.innerWidth;
+    if (height === 0) height = window.innerHeight;
+
     // Init Three
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.Fog(0xffffff, 4000, 10000);
 
-    this.camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 10, 10000);
+    this.camera = new THREE.PerspectiveCamera(60, width / height, 10, 10000);
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    this.renderer.setSize(container.clientWidth, container.clientHeight);
+    this.renderer.setSize(width, height);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Set a background color just in case environment fails
+    this.renderer.setClearColor(0x87CEEB); 
     container.appendChild(this.renderer.domElement);
+
+    // Setup ResizeObserver for robust layout handling
+    this.resizeObserver = new ResizeObserver(() => this.handleResize());
+    this.resizeObserver.observe(container);
 
     this.clock = new THREE.Clock();
 
@@ -124,6 +139,19 @@ export class GameEngine {
     this.animate();
   }
 
+  private handleResize() {
+    if (!this.container) return;
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
+
+    // Ignore invalid sizes
+    if (width === 0 || height === 0) return;
+
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height);
+  }
+
   private setupInputs() {
     window.addEventListener('keydown', (e) => this.keysPressed[e.key] = true);
     window.addEventListener('keyup', (e) => this.keysPressed[e.key] = false);
@@ -167,13 +195,6 @@ export class GameEngine {
     window.addEventListener('touchend', (e) => {
         const t = e.changedTouches[0];
         onUp(t.clientX, t.clientY);
-    });
-
-    // Resize
-    window.addEventListener('resize', () => {
-      this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
     });
   }
 
@@ -613,6 +634,7 @@ export class GameEngine {
   }
 
   public dispose() {
+    this.resizeObserver.disconnect();
     cancelAnimationFrame(this.animationId);
     this.renderer.dispose();
     this.container.innerHTML = '';
