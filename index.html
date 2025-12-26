@@ -14,6 +14,7 @@
         height: 100%; 
         overflow: hidden; 
         background-color: #1a202c; 
+        touch-action: none; /* Prevent browser zooming/scrolling */
       }
       #root { 
         width: 100%; 
@@ -33,18 +34,6 @@
         z-index: 0;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react/": "https://esm.sh/react@18.2.0/",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "three": "https://esm.sh/three@0.160.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
-  }
-}
-</script>
 <!-- Global Error Handler to debug startup issues -->
 <script>
   function showError(title, message, details) {
@@ -70,6 +59,18 @@
     console.error("Unhandled Promise Rejection:", event.reason);
     showError('Module Load Error', 'Failed to load a required module or resource.', event.reason ? event.reason.toString() : 'Unknown reason');
   });
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "three": "https://esm.sh/three@^0.182.0",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+  }
+}
 </script>
 </head>
   <body>
