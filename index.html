@@ -6,9 +6,27 @@
     <title>Pro Smash 3D Badminton</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #1a202c; user-select: none; -webkit-user-select: none; }
-      #root { width: 100%; height: 100%; }
-      canvas { display: block; outline: none; }
+      /* Critical CSS to ensure full height immediately */
+      html, body { 
+        margin: 0; 
+        padding: 0; 
+        width: 100%; 
+        height: 100%; 
+        overflow: hidden; 
+        background-color: #1a202c; 
+      }
+      #root { 
+        width: 100%; 
+        height: 100%; 
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      canvas { 
+        display: block; 
+        outline: none; 
+      }
     </style>
   <script type="importmap">
 {

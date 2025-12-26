@@ -13,15 +13,20 @@ export default function App() {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const engine = new GameEngine(
-      containerRef.current,
-      (newScore) => setScore(newScore),
-      (newState) => setGameState(newState)
-    );
-    engineRef.current = engine;
+    // Small delay to ensure DOM layout is settled (helps on some mobile browsers)
+    const timer = setTimeout(() => {
+        if (!containerRef.current) return;
+        const engine = new GameEngine(
+          containerRef.current,
+          (newScore) => setScore(newScore),
+          (newState) => setGameState(newState)
+        );
+        engineRef.current = engine;
+    }, 50);
 
     return () => {
-      engine.dispose();
+      clearTimeout(timer);
+      engineRef.current?.dispose();
     };
   }, []);
 
@@ -60,8 +65,8 @@ export default function App() {
   };
 
   return (
-    <div className="relative w-full h-full bg-gray-900 overflow-hidden font-sans">
-      <div ref={containerRef} className="w-full h-full touch-none" />
+    <div className="relative w-full h-full bg-gray-900 overflow-hidden font-sans" style={{ width: '100%', height: '100%' }}>
+      <div ref={containerRef} className="w-full h-full touch-none" style={{ width: '100%', height: '100%' }} />
       
       <UI 
         state={gameState} 

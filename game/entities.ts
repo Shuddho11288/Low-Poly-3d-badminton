@@ -18,7 +18,7 @@ const matShadow = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: tr
 const matSkin = new THREE.MeshLambertMaterial({ color: COLOR_SKIN });
 const matShorts = new THREE.MeshLambertMaterial({ color: COLOR_SHORTS });
 
-// --- Environment (Gradient Sky + Sun) ---
+// --- Environment (Simple Skybox to avoid Shader Errors) ---
 export class WorldEnvironment {
   public mesh: THREE.Group;
 
@@ -29,51 +29,51 @@ export class WorldEnvironment {
   }
 
   private createSkyDome() {
-    const vertexShader = `
-      varying vec3 vWorldPosition;
-      void main() {
-        vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-        vWorldPosition = worldPosition.xyz;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-      }
-    `;
+    // Simple gradient effect using vertex colors instead of custom shader
+    // This is much safer for cross-browser compatibility
+    const geometry = new THREE.SphereGeometry(6000, 32, 15);
+    // Invert normal so we see inside
+    geometry.scale(-1, 1, 1);
 
-    const fragmentShader = `
-      uniform vec3 topColor;
-      uniform vec3 bottomColor;
-      uniform float offset;
-      uniform float exponent;
-      varying vec3 vWorldPosition;
-      void main() {
-        float h = normalize( vWorldPosition + offset ).y;
-        gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
-      }
-    `;
+    const colors = [];
+    const topColor = new THREE.Color(0x0077ff);
+    const bottomColor = new THREE.Color(0xffffff);
+    
+    const posAttribute = geometry.attributes.position;
+    
+    for (let i = 0; i < posAttribute.count; i++) {
+        const y = posAttribute.getY(i);
+        // Normalize y somewhat from -radius to +radius
+        // Focus gradient on the horizon (y=0 to y=2000)
+        let t = (y + 1000) / 4000; 
+        t = Math.max(0, Math.min(1, t));
+        
+        // Non-linear mix for nicer horizon
+        t = Math.pow(t, 0.5);
 
-    const uniforms = {
-      topColor: { value: new THREE.Color(0x0077ff) }, 
-      bottomColor: { value: new THREE.Color(0xffffff) }, 
-      offset: { value: 33 },
-      exponent: { value: 0.6 }
-    };
-
-    const skyGeo = new THREE.SphereGeometry(6000, 32, 15);
-    const skyMat = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      uniforms: uniforms,
-      side: THREE.BackSide
+        const color = bottomColor.clone().lerp(topColor, t);
+        colors.push(color.r, color.g, color.b);
+    }
+    
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    
+    const material = new THREE.MeshBasicMaterial({
+        vertexColors: true,
+        side: THREE.BackSide,
+        fog: false
     });
 
-    const sky = new THREE.Mesh(skyGeo, skyMat);
+    const sky = new THREE.Mesh(geometry, material);
     this.mesh.add(sky);
 
+    // Sun
     const sunGeom = new THREE.SphereGeometry(150, 32, 32);
     const sunMat = new THREE.MeshBasicMaterial({ color: 0xffdd44 });
     const sun = new THREE.Mesh(sunGeom, sunMat);
     sun.position.set(800, 2000, -3000);
     this.mesh.add(sun);
     
+    // Sun Flare
     const spriteMat = new THREE.SpriteMaterial({ 
         map: this.createGlowTexture(64, 'rgba(255, 200, 0,', 0.5), 
         color: 0xffaa00, 
@@ -91,7 +91,7 @@ export class WorldEnvironment {
         roughness: 0.9, 
         metalness: 0.0,
         transparent: true, 
-        opacity: 0.9 
+        opacity: 0.8 
     });
     
     for (let i = 0; i < 20; i++) {
